@@ -111,7 +111,9 @@ textarea{width:100%;background:none;border:0;outline:0;resize:none;max-height:18
 .send{background:var(--acc);color:#fff;border-radius:50%;width:34px;height:34px;justify-content:center;padding:0;margin-left:auto}
 .send svg{animation:swap .35s var(--spring)}
 .send:hover{background:#6e62ff;color:#fff;box-shadow:0 0 18px #5b4dff88;transform:scale(1.08)}
-.chip{background:var(--el);border-radius:6px;padding:2px 8px;font-size:12px;color:var(--mut);animation:pop .35s var(--spring)}
+.chip{background:var(--el);border-radius:6px;padding:2px 8px;font-size:12px;color:var(--mut);animation:pop .35s var(--spring);display:inline-flex;align-items:center;gap:6px}
+.chip button{padding:0 2px;font-size:12px;color:var(--mut)}
+.chip button:hover{color:#ff7a7a;background:none}
 .sec{border-bottom:1px solid var(--line);padding:10px 0;display:flex;flex-direction:column;gap:8px}
 .sec h4{font-weight:500;color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.8px}
 .sec-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;padding:0;background:transparent;color:var(--mut);font-size:12px;letter-spacing:.8px;text-transform:uppercase}
@@ -257,10 +259,11 @@ body.drag::after{content:"Drop files to attach";position:fixed;inset:12px;z-inde
 
 <dialog id="dg">
   <h3 style="font-weight:500">Model Settings</h3>
-  <p style="color:var(--mut);margin:8px 0 12px">The chat is routed through the configured Supabase Edge Function. Model, system instructions and temperature are sent with each request. Provider credentials stay on the server; never place private API keys in this page.</p>
-  <label for="m1">Fast model</label><input class="field" id="m1" dir="ltr">
-  <label for="m2">Thinking model</label><input class="field" id="m2" dir="ltr">
+  <p style="color:var(--mut);margin:8px 0 12px">Leave a model field blank to use the backend's default model, or enter a specific model ID offered by your provider.</p>
+  <label for="m1">Fast model</label><input class="field" id="m1" dir="ltr" placeholder="auto (server default)">
+  <label for="m2">Thinking model</label><input class="field" id="m2" dir="ltr" placeholder="auto (server default)">
   <div class="row">
+    <button type="button" id="rst" style="margin-right:auto">Reset Defaults</button>
     <button type="button" id="cl">Cancel</button>
     <button type="button" class="pri" id="sv">Save</button>
   </div>
@@ -269,12 +272,12 @@ body.drag::after{content:"Drop files to attach";position:fixed;inset:12px;z-inde
 <script>
 const $=id=>document.getElementById(id);
 
+const ENDPOINT="https://ervctvcghmyurnqlyqwm.supabase.co/functions/v1/coarena-chat";
+const API_KEY="sb_publishable_FGJPNZUejNt9gC2h2si6-Q_NG06feiy";
+
 const DEF={
-  provider:'openai',
-  base:'https://api.openai.com/v1',
-  key:'',
-  fast:'gpt-4o-mini',
-  think:'gpt-4o',
+  fast:'',
+  think:'',
   sys:'You are JOMO, a precise, concise and helpful AI assistant. Answer in the language of the user.',
   temp:0.7,
   mode:'fast',
@@ -397,6 +400,16 @@ function drawList(){
   });
 }
 
+function fallbackCopy(text,done){
+  const ta=document.createElement('textarea');
+  ta.value=text;
+  document.body.append(ta);
+  ta.select();
+  try{document.execCommand('copy')}catch(e){}
+  ta.remove();
+  done();
+}
+
 function copyText(text,btn){
   const done=()=>{
     if(!btn)return;
@@ -409,16 +422,6 @@ function copyText(text,btn){
   }else{
     fallbackCopy(text,done);
   }
-}
-
-function fallbackCopy(text,done){
-  const ta=document.createElement('textarea');
-  ta.value=text;
-  document.body.append(ta);
-  ta.select();
-  try{document.execCommand('copy')}catch(e){}
-  ta.remove();
-  done();
 }
 
 function msgEl(m,i,last,idx){
@@ -497,7 +500,8 @@ function draw(switched){
   }
   c.msgs.forEach((m,i)=>w.append(msgEl(m,i,i===c.msgs.length-1,i)));
   $('mode').value=cfg().mode;
-  $('mn').textContent=cfg()[cfg().mode];
+  const activeModel=(cfg()[cfg().mode]||'').trim();
+  $('mn').textContent=activeModel||'auto';
   $('sp').value=cfg().sys;
   $('tp').value=cfg().temp;
   $('tv').textContent=cfg().temp;
@@ -526,6 +530,40 @@ function reveal(m,bd,t){
   });
 }
 
+async function queryBackend(messages,modelOverride,signal){
+  const g=cfg();
+  const payload={messages,temperature:g.temp,mode:g.mode};
+  const chosenModel=modelOverride!==undefined?modelOverride:(g[g.mode]||'').trim();
+  if(chosenModel)payload.model=chosenModel;
+
+  const r=await fetch(ENDPOINT,{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey':API_KEY
+    },
+    body:JSON.stringify(payload),
+    signal
+  });
+  const raw=await r.text();
+  let data;
+  try{data=JSON.parse(raw)}catch(e){throw new Error('Supabase returned an unreadable response: '+raw.slice(0,300))}
+  if(!r.ok){
+    const detail=data?.error?.message||data?.message||data?.error||raw;
+    const err=new Error(r.status+': '+detail);
+    err.status=r.status;
+    err.detail=String(detail);
+    throw err;
+  }
+  if(data?.error)throw new Error(data.error.message||JSON.stringify(data.error));
+  const answer=data?.choices?.[0]?.message?.content;
+  if(typeof answer!=='string'||!answer.trim())throw new Error('The model returned no text. Check the Edge Function response.');
+  if(data?.model&&!chosenModel){
+    $('mn').textContent=data.model;
+  }
+  return answer;
+}
+
 async function run(){
   const c=cur(),g=cfg();
   if(!c)return;
@@ -545,26 +583,19 @@ async function run(){
   const messages=[{role:'system',content:g.sys},...hist];
 
   try{
-    const endpoint="[https://ervctvcghmyurnqlyqwm.supabase.co/functions/v1/coarena-chat](https://ervctvcghmyurnqlyqwm.supabase.co/functions/v1/coarena-chat)";
-    const r=await fetch(endpoint,{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'apikey':"sb_publishable_FGJPNZUejNt9gC2h2si6-Q_NG06feiy"
-      },
-      body:JSON.stringify({model:g[g.mode],messages,temperature:g.temp,mode:g.mode}),
-      signal:ctrl.signal
-    });
-    const raw=await r.text();
-    let data;
-    try{data=JSON.parse(raw)}catch(e){throw new Error('Supabase returned an unreadable response: '+raw.slice(0,300))}
-    if(!r.ok){
-      const detail=data?.error?.message||data?.message||data?.error||raw;
-      throw new Error(r.status+': '+detail);
+    let answer;
+    try{
+      answer=await queryBackend(messages,undefined,ctrl.signal);
+    }catch(firstErr){
+      const currentModel=(g[g.mode]||'').trim();
+      if(currentModel&&(firstErr.status===404||/model/i.test(firstErr.detail||''))){
+        answer=await queryBackend(messages,'',ctrl.signal);
+        g[g.mode]='';
+        save();
+      }else{
+        throw firstErr;
+      }
     }
-    if(data?.error)throw new Error(data.error.message||JSON.stringify(data.error));
-    const answer=data?.choices?.[0]?.message?.content;
-    if(typeof answer!=='string'||!answer.trim())throw new Error('The model returned no text. Check the Edge Function response.');
     av.classList.remove('think');
     await reveal(m,bd,answer);
   }catch(e){
@@ -587,7 +618,7 @@ function send(){
   if(!t&&!files.length)return Promise.resolve();
   files.forEach(f=>{t+=(t?'\n\n':'')+`[File: ${f.name}]\n${f.text}`});
   files=[];
-  $('fl').style.display='none';
+  renderFiles();
   c.msgs.push({role:'user',content:t.trim()});
   if(c.msgs.length===1)c.title=t.trim().slice(0,40)||'New conversation';
   $('in').value='';
@@ -604,6 +635,18 @@ function send(){
   save();
   draw();
   return run();
+}
+
+function renderFiles(){
+  const fl=$('fl');
+  if(!files.length){
+    fl.style.display='none';
+    fl.innerHTML='';
+    return;
+  }
+  fl.style.display='inline-flex';
+  fl.innerHTML=`<span>${esc(files.map(f=>f.name).join(', '))}</span><button type="button" title="Clear attachments">✕</button>`;
+  fl.querySelector('button').onclick=()=>{files=[];renderFiles()};
 }
 
 $('sd').onclick=send;
@@ -624,8 +667,7 @@ const addF=async list=>{
       files.push({name:f.name,text:(await f.text()).slice(0,60000)});
     }catch(e){}
   }
-  $('fl').textContent=files.map(f=>f.name).join(', ');
-  $('fl').style.display=files.length?'':'none';
+  renderFiles();
 };
 
 $('fi').onchange=async e=>{
@@ -679,13 +721,20 @@ $('st').onclick=()=>{
   $('m2').value=g.think;
   $('dg').showModal();
 };
+$('rst').onclick=()=>{
+  $('m1').value='';
+  $('m2').value='';
+  cfg().temp=DEF.temp;
+  save();
+  draw();
+};
 $('cl').onclick=closeDg;
 $('dg').addEventListener('cancel',e=>{e.preventDefault();closeDg()});
 $('dg').addEventListener('click',e=>{if(e.target===$('dg'))closeDg()});
 $('sv').onclick=()=>{
   Object.assign(cfg(),{
-    fast:$('m1').value.trim()||DEF.fast,
-    think:$('m2').value.trim()||DEF.think
+    fast:$('m1').value.trim(),
+    think:$('m2').value.trim()
   });
   save();
   closeDg();
