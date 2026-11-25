@@ -16,7 +16,6 @@ button:hover{color:var(--txt);background:var(--el2)}
 button:active{transform:scale(.94)}
 button:focus-visible,.field:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 
-/* ---------- Motion ---------- */
 @keyframes rise{from{opacity:0;transform:translateY(14px) scale(.985);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
 @keyframes slideL{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
 @keyframes slideR{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
@@ -32,6 +31,7 @@ button:focus-visible,.field:focus-visible{outline:2px solid var(--acc);outline-o
 @keyframes blink{50%{opacity:0}}
 @keyframes swap{from{transform:scale(.4) rotate(-90deg);opacity:0}to{transform:none;opacity:1}}
 @keyframes sheen{from{background-position:-200% 0}to{background-position:200% 0}}
+
 .app>*{animation:fade .7s var(--ease) both}
 .app>aside:first-child{animation-name:slideL}
 .app>main{animation-delay:.08s}
@@ -111,6 +111,12 @@ textarea{width:100%;background:none;border:0;outline:0;resize:none;max-height:18
 .chip{background:var(--el);border-radius:6px;padding:2px 8px;font-size:12px;color:var(--mut);animation:pop .35s var(--spring)}
 .sec{border-bottom:1px solid var(--line);padding:10px 0;display:flex;flex-direction:column;gap:8px}
 .sec h4{font-weight:500;color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.8px}
+.sec-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;padding:0;background:transparent;color:var(--mut);font-size:12px;letter-spacing:.8px;text-transform:uppercase}
+.sec-toggle:hover{background:transparent;color:var(--txt)}
+.sec-toggle::after{content:"⌄";font-size:17px;transition:transform .2s ease}
+.sec.collapsed .sec-toggle::after{transform:rotate(-90deg)}
+.sec.collapsed #info{display:none}
+#info{padding-top:2px;line-height:1.7}
 dialog{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:14px;padding:20px;width:min(480px,92vw);margin:auto}
 dialog[open]{animation:pop .35s var(--spring)}
 dialog[open]::backdrop{animation:fade .3s both}
@@ -157,12 +163,32 @@ body.drag::after{content:"Drop files to attach";position:fixed;inset:12px;z-inde
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
 </head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="logo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="9" cy="12" r="5.5"/><circle cx="15" cy="12" r="5.5"/></g><circle cx="12" cy="12" r="1.6" fill="currentColor"/></symbol>
+<symbol id="plus" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></symbol>
+<symbol id="gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1-2.1"/></symbol>
+<symbol id="send" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
+<symbol id="stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="3"/></symbol>
+<symbol id="copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="3"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+<symbol id="check" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></symbol>
+<symbol id="regen" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-14 5.3M4 12a8 8 0 0 1 14-5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></symbol>
+<symbol id="up" viewBox="0 0 24 24"><path d="M7 11v9H4v-9zM7 11l4-8c2 0 3 1 3 3v3h5a2 2 0 0 1 2 2l-1 6a2 2 0 0 1-2 2H7"/></symbol>
+<symbol id="down" viewBox="0 0 24 24"><path d="M7 13V4H4v9zM7 13l4 8c2 0 3-1 3-3v-3h5a2 2 0 0 0 2-2l-1-6a2 2 0 0 0-2-2H7"/></symbol>
+<symbol id="clip" viewBox="0 0 24 24"><path d="m20 11-8.5 8.5a5 5 0 0 1-7-7L13 4a3.5 3.5 0 0 1 5 5l-8.500 8.500a2 2 0 0 1-3-3L14 7"/></symbol>
+<symbol id="mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+<symbol id="bin" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></symbol>
+<symbol id="panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></symbol>
+<symbol id="user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+<symbol id="dl" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></symbol>
+<symbol id="img" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m4 18 5-5 4 4 3-3 4 4"/></symbol>
+<symbol id="wave" viewBox="0 0 24 24"><path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4"/></symbol>
+<symbol id="spk" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zM17 9a4 4 0 0 1 0 6M19.5 6.5a8 8 0 0 1 0 11"/></symbol>
 <symbol id="edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/></symbol>
 <symbol id="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></symbol>
 <symbol id="x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
 <symbol id="arr" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></symbol>
 </defs></svg>
-
 <div class="app">
 <aside id="sb">
   <div class="brand"><svg class="i"><use href="#logo"/></svg>JOMO AI</div>
@@ -201,15 +227,20 @@ body.drag::after{content:"Drop files to attach";position:fixed;inset:12px;z-inde
 </main>
 
 <aside class="r">
-  <div class="sec"><h4>Current Session</h4><div id="info" style="color:var(--mut)"></div></div>
+  <div class="sec" id="sessionSec">
+    <button class="sec-toggle" id="sessionToggle" type="button" aria-expanded="true" aria-controls="info">Current Session</button>
+    <div id="info" style="color:var(--mut)"></div>
+  </div>
   <div class="sec"><h4>System Prompt</h4><textarea class="field" id="sp" rows="6" dir="auto" style="resize:vertical"></textarea></div>
   <div class="sec"><h4>Temperature <span id="tv" style="float:right;color:var(--txt)"></span></h4><input type="range" id="tp" min="0" max="1.5" step="0.1" style="accent-color:var(--acc)"></div>
 </aside>
 </div>
 
 <div id="vm"><select id="vl"><option value="ar-SA">العربية</option><option value="fr-FR">Français</option><option value="en-US">English</option></select><div id="vo" data-s="idle"></div><div id="vt"></div><div class="vb"><button id="vmu" title="Mute"><svg class="i"><use href="#mic"/></svg></button><button class="vx" id="vx" title="End"><svg class="i"><use href="#x"/></svg></button></div></div>
+
 <dialog id="dg">
-  <h3 style="font-weight:500">Model Settings</h3><p style="color:var(--mut);margin:8px 0 12px">The chat is routed through the configured Supabase Edge Function. Model, system instructions and temperature are sent with each request. Provider credentials stay on the server; never place private API keys in this page.</p>
+  <h3 style="font-weight:500">Model Settings</h3>
+  <p style="color:var(--mut);margin:8px 0 12px">The chat is routed through the configured Supabase Edge Function. Model, system instructions and temperature are sent with each request. Provider credentials stay on the server; never place private API keys in this page.</p>
   <label>Fast model</label><input class="field" id="m1" dir="ltr">
   <label>Thinking model</label><input class="field" id="m2" dir="ltr">
   <div class="row"><button id="cl">Cancel</button><button class="pri" id="sv">Save</button></div>
@@ -217,6 +248,17 @@ body.drag::after{content:"Drop files to attach";position:fixed;inset:12px;z-inde
 
 <script>
 const $=id=>document.getElementById(id);
+
+// Current Session panel: collapse/expand on demand and remember the choice.
+const sessionSec=$('sessionSec');
+const setSessionCollapsed=collapsed=>{
+  sessionSec.classList.toggle('collapsed',collapsed);
+  $('sessionToggle').setAttribute('aria-expanded',String(!collapsed));
+  S.cfg.sessionCollapsed=collapsed;
+  save();
+};
+$('sessionToggle').onclick=()=>setSessionCollapsed(!sessionSec.classList.contains('collapsed'));
+
 const ic=n=>`<svg class="i"><use href="#${n}"/></svg>`;
 const DEF={provider:'openai',base:'https://api.openai.com/v1',key:'',fast:'gpt-4o-mini',think:'gpt-4o',sys:'You are JOMO, a precise, concise and helpful AI assistant. Answer in the language of the user.',temp:0.7,mode:'fast'};
 let S;
@@ -283,10 +325,8 @@ function draw(switched){
   $('sp').value=cfg().sys;$('tp').value=cfg().temp;$('tv').textContent=cfg().temp;
   $('info').textContent=c.msgs.length+' messages - ~'+Math.round(c.msgs.reduce((n,m)=>n+m.content.length,0)/4)+' tokens';
   $('sd').innerHTML=ic(busy?'stop':'send');
-  $('msgs').scrollTop=$('msgs').scrollHeight;
 }
-
-function reveal(m,bd,t){
+  function reveal(m,bd,t){
   return new Promise(res=>{
     let i=0;const step=Math.max(2,Math.ceil(t.length/160));
     const tick=()=>{
@@ -334,10 +374,6 @@ async function run(){
     av.classList.remove('think');
     await reveal(m,bd,answer);
   }catch(e){
-    if(e.name==='AbortError'){m.content=m.content||'(stopped)'}
-    else{m.error=true;m.content='Error: '+(e.message||'Unknown network error')}
-  }
-    }catch(e){
     if(e.name==='AbortError'){m.content=m.content||'(stopped)'}
     else{m.error=true;m.content='Error: '+(e.message||'Unknown network error')}
   }
@@ -604,6 +640,11 @@ const th=x=>{
 
 th(S.cfg.theme||'dark');
 
+$('th').onclick=()=>{
+  th(S.cfg.theme==='light'?'dark':'light');
+  save();
+};
+
 $('w').addEventListener('click',e=>{
   const b=e.target.closest('.cc');
   if(!b)return;
@@ -654,6 +695,9 @@ document.addEventListener('keydown',e=>{
   }
   if(e.key==='Escape'&&vm)vend();
 });
+
+// Restore the saved Current Session panel state.
+setSessionCollapsed(!!S.cfg.sessionCollapsed);
 
 if(!S.convs.length)newConv();
 else{
