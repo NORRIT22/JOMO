@@ -71,7 +71,7 @@ dialog label{display:block;color:var(--mut);font-size:12px;margin:10px 0 4px}
 <symbol id="logo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="9" cy="12" r="5.5"/><circle cx="15" cy="12" r="5.5"/></g><circle cx="12" cy="12" r="1.6" fill="currentColor"/></symbol>
 <symbol id="plus" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></symbol>
 <symbol id="search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
-<symbol id="gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></symbol>
+<symbol id="gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1-2.1"/></symbol>
 <symbol id="send" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
 <symbol id="stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="3"/></symbol>
 <symbol id="copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="3"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
@@ -128,11 +128,11 @@ dialog label{display:block;color:var(--mut);font-size:12px;margin:10px 0 4px}
 </div>
 
 <dialog id="dg">
-  <h3 style="font-weight:500">Settings: API and Connections</h3>
+  <h3 style="font-weight:500">Settings: API and Connections</h3><p style="color:var(--mut);margin:8px 0 12px">JOMO is connected to GPT-6 Luna through its Supabase server function. The provider, Base URL and API Key fields below do not control this connection.</p>
   <label>Provider</label>
   <select class="field" id="pv"><option value="openai">OpenAI-compatible (OpenAI, OpenRouter, Groq, DeepSeek, Ollama...)</option><option value="anthropic">Anthropic (Claude)</option></select>
   <label>Base URL</label><input class="field" id="bu" dir="ltr">
-  <label>API Key (stored only in this browser)</label><input class="field" id="ak" type="password" dir="ltr" placeholder="sk-...">
+  <label>API Key</label><input class="field" id="ak" type="password" dir="ltr" placeholder="Not used: connection is handled securely by Supabase">
   <label>Fast model</label><input class="field" id="m1" dir="ltr">
   <label>Thinking model</label><input class="field" id="m2" dir="ltr">
   <div class="row"><button id="cl">Cancel</button><button class="pri" id="sv">Save</button></div>
@@ -197,49 +197,41 @@ function draw(){
 
 async function run(){
   const c=cur(),g=cfg();
-  if(!g.key&&!/localhost|127\.0\.0\.1/.test(g.base)){$('dg').showModal();return}
   busy=true;draw();
   const m={role:'assistant',content:''};c.msgs.push(m);
   const el=msgEl(m,0,false);$('w').append(el);const bd=el.querySelector('.b');
   ctrl=new AbortController();
   const hist=c.msgs.slice(0,-1).map(x=>({role:x.role,content:x.content}));
-  const model=g[g.mode];
+  const messages=[{role:'system',content:g.sys},...hist];
   try{
-    let url,headers={'Content-Type':'application/json'},body;
-    if(g.provider==='anthropic'){
-      url=(g.base.replace(/\/$/,''))+'/messages';
-      headers['x-api-key']=g.key;headers['anthropic-version']='2023-06-01';headers['anthropic-dangerous-direct-browser-access']='true';
-      body={model,max_tokens:4096,system:g.sys,messages:hist,temperature:Math.min(g.temp,1),stream:true};
-    }else{
-      url=g.base.replace(/\/$/,'')+'/chat/completions';
-      if(g.key)headers.Authorization='Bearer '+g.key;
-      body={model,messages:[{role:'system',content:g.sys},...hist],temperature:g.temp,stream:true};
+    const endpoint="https://ervctvcghmyurnqlyqwm.supabase.co/functions/v1/coarena-chat";
+    const r=await fetch(endpoint,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':"sb_publishable_FGJPNZUejNt9gC2h2si6-Q_NG06feiy"
+      },
+      body:JSON.stringify({model:'gpt-6-luna',messages}),
+      signal:ctrl.signal
+    });
+    const raw=await r.text();
+    let data;
+    try{data=JSON.parse(raw)}catch(e){throw new Error('Supabase returned an unreadable response: '+raw.slice(0,300))}
+    if(!r.ok){
+      const detail=data?.error?.message||data?.message||data?.error||raw;
+      throw new Error(r.status+': '+detail);
     }
-    const r=await fetch(url,{method:'POST',headers,body:JSON.stringify(body),signal:ctrl.signal});
-    if(!r.ok){let t=await r.text();try{t=JSON.parse(t).error?.message||t}catch(e){}throw new Error(r.status+': '+t)}
-    const rd=r.body.getReader(),dc=new TextDecoder();let buf='';
-    for(;;){
-      const {done,value}=await rd.read();if(done)break;
-      buf+=dc.decode(value,{stream:true});
-      const lines=buf.split('\n');buf=lines.pop();
-      for(const l of lines){
-        if(!l.startsWith('data:'))continue;
-        const p=l.slice(5).trim();if(!p||p==='[DONE]')continue;
-        try{
-          const j=JSON.parse(p);
-          const t=g.provider==='anthropic'?(j.type==='content_block_delta'?j.delta?.text:''):j.choices?.[0]?.delta?.content;
-          if(t){m.content+=t;bd.innerHTML=md(m.content);$('msgs').scrollTop=$('msgs').scrollHeight}
-        }catch(e){}
-      }
-    }
-    if(!m.content)m.content='(empty response)';
+    if(data?.error)throw new Error(data.error.message||JSON.stringify(data.error));
+    const answer=data?.choices?.[0]?.message?.content;
+    if(typeof answer!=='string'||!answer.trim())throw new Error('The model returned no text. Check the Edge Function response.');
+    m.content=answer;
+    bd.innerHTML=md(m.content);$('msgs').scrollTop=$('msgs').scrollHeight;
   }catch(e){
     if(e.name==='AbortError'){m.content=m.content||'(stopped)'}
-    else{m.error=!m.content;m.content=(m.content?m.content+'\n\n':'')+'Error: '+e.message}
+    else{m.error=true;m.content='Error: '+e.message}
   }
   busy=false;ctrl=null;save();draw();
 }
-
 function send(){
   if(busy){ctrl?.abort();return}
   const c=cur();let t=$('in').value.trim();
