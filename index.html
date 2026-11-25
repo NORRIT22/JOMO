@@ -122,8 +122,8 @@ textarea{width:100%;background:none;border:0;outline:0;resize:none;max-height:18
 .sec.collapsed .sec-toggle::after{transform:rotate(-90deg)}
 .sec.collapsed #info{display:none}
 #info{padding-top:2px;line-height:1.7}
-dialog{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:14px;padding:20px;width:min(480px,92vw);margin:auto}
-dialog[open]{animation:pop .35s var(--spring)}
+dialog{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:14px;padding:20px;width:min(480px,92vw);margin:auto;position:fixed;inset:0;z-index:40}
+dialog[open]{display:block;animation:pop .35s var(--spring)}
 dialog[open]::backdrop{animation:fade .3s both}
 dialog.closing{animation:none;opacity:0;transform:scale(.95);transition:.18s}
 dialog::backdrop{background:#000a;backdrop-filter:blur(3px)}
@@ -259,9 +259,9 @@ body.drag::after{content:"Drop files to attach";position:fixed;inset:12px;z-inde
 
 <dialog id="dg">
   <h3 style="font-weight:500">Model Settings</h3>
-  <p style="color:var(--mut);margin:8px 0 12px">Leave a model field blank to use the backend's default model, or enter a specific model ID offered by your provider.</p>
-  <label for="m1">Fast model</label><input class="field" id="m1" dir="ltr" placeholder="auto (server default)">
-  <label for="m2">Thinking model</label><input class="field" id="m2" dir="ltr" placeholder="auto (server default)">
+  <p style="color:var(--mut);margin:8px 0 12px">Leave a model field blank to auto-detect the working model, or specify a valid model ID. If the primary backend is unavailable, JOMO automatically falls back to a public AI endpoint.</p>
+  <label for="m1">Fast model</label><input class="field" id="m1" dir="ltr" placeholder="auto (recommended)">
+  <label for="m2">Thinking model</label><input class="field" id="m2" dir="ltr" placeholder="auto (recommended)">
   <div class="row">
     <button type="button" id="rst" style="margin-right:auto">Reset Defaults</button>
     <button type="button" id="cl">Cancel</button>
@@ -272,8 +272,9 @@ body.drag::after{content:"Drop files to attach";position:fixed;inset:12px;z-inde
 <script>
 const $=id=>document.getElementById(id);
 
-const ENDPOINT="https://ervctvcghmyurnqlyqwm.supabase.co/functions/v1/coarena-chat";
-const API_KEY="sb_publishable_FGJPNZUejNt9gC2h2si6-Q_NG06feiy";
+const PRIMARY_ENDPOINT="https://ervctvcghmyurnqlyqwm.supabase.co/functions/v1/coarena-chat";
+const PRIMARY_KEY="sb_publishable_FGJPNZUejNt9gC2h2si6-Q_NG06feiy";
+const FALLBACK_ENDPOINT="https://text.pollinations.ai/openai";
 
 const DEF={
   fast:'',
@@ -288,8 +289,12 @@ const DEF={
 
 let S;
 try{S=JSON.parse(localStorage.getItem('jomo')||'null')}catch(e){S=null}
-S=S||{convs:[],cur:null,cfg:{}};
-S.cfg={...DEF,...S.cfg};
+if(!S||typeof S!=='object')S={convs:[],cur:null,cfg:{}};
+if(!Array.isArray(S.convs))S.convs=[];
+S.cfg={...DEF,...(S.cfg||{})};
+// Clear legacy invalid default models automatically if still stored
+if(S.cfg.fast==='gpt-4o-mini')S.cfg.fast='';
+if(S.cfg.think==='gpt-4o')S.cfg.think='';
 
 const save=()=>{try{localStorage.setItem('jomo',JSON.stringify(S))}catch(e){}};
 const cfg=()=>S.cfg;
@@ -361,12 +366,12 @@ function drawList(){
   const q=$('q').value.trim().toLowerCase();
   $('list').innerHTML='';
   let n=0;
-  S.convs.filter(c=>c.title.toLowerCase().includes(q)).forEach(c=>{
+  S.convs.filter(c=>String(c.title||'').toLowerCase().includes(q)).forEach(c=>{
     const d=document.createElement('div');
     d.className='it'+(c.id===S.cur?' on':'');
     if(!seenC.has(c)){seenC.add(c);d.classList.add('in');d.style.setProperty('--d',Math.min(n,8))}
     n++;
-    d.innerHTML=`<span dir="auto">${esc(c.title)}</span><button type="button" title="Delete">${ic('bin')}</button>`;
+    d.innerHTML=`<span dir="auto">${esc(c.title||'New conversation')}</span><button type="button" title="Delete">${ic('bin')}</button>`;
     d.onclick=()=>{
       if(S.cur===c.id)return;
       S.cur=c.id;
@@ -532,49 +537,128 @@ function reveal(m,bd,t){
   });
 }
 
-async function queryBackend(messages,modelOverride,signal){
-  const g=cfg();
-  const payload={messages,temperature:g.temp,mode:g.mode};
-  const chosenModel=modelOverride!==undefined?modelOverride:(g[g.mode]||'').trim();
-  if(chosenModel)payload.model=chosenModel;
+function extractText(data,raw){
+  if(typeof data==='string'&&data.trim())return data.trim();
+  if(data&&typeof data==='object'){
+    const candidate=
+      data?.choices?.[0]?.message?.content ??
+      data?.choices?.[0]?.text ??
+      data?.reply ??
+      data?.response ??
+      data?.output ??
+      data?.answer ??
+      data?.text ??
+      data?.content ??
+      (typeof data?.message==='string'?data.message:'');
+    if(typeof candidate==='string'&&candidate.trim())return candidate.trim();
+  }
+  if(typeof raw==='string'&&raw.includes('data:')){
+    const lines=raw.split('\n').filter(l=>l.startsWith('data:')&&!l.includes('[DONE]'));
+    let joined='';
+    for(const l of lines){
+      try{
+        const chunk=JSON.parse(l.slice(5).trim());
+        joined+=chunk?.choices?.[0]?.delta?.content||chunk?.choices?.[0]?.text||chunk?.text||'';
+      }catch(e){}
+    }
+    if(joined.trim())return joined.trim();
+  }
+  return '';
+}
 
-  const r=await fetch(ENDPOINT,{
+async function fetchWithTimeout(url,options,outerSignal,ms=35000){
+  const timerCtrl=new AbortController();
+  const onAbort=()=>timerCtrl.abort();
+  if(outerSignal){
+    if(outerSignal.aborted)timerCtrl.abort();
+    else outerSignal.addEventListener('abort',onAbort,{once:true});
+  }
+  const timer=setTimeout(()=>timerCtrl.abort(),ms);
+  try{
+    return await fetch(url,{...options,signal:timerCtrl.signal});
+  }finally{
+    clearTimeout(timer);
+    if(outerSignal)outerSignal.removeEventListener('abort',onAbort);
+  }
+}
+
+async function postChat(url,headers,payload,signal){
+  const r=await fetchWithTimeout(url,{
     method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'apikey':API_KEY,
-      'Authorization':'Bearer '+API_KEY
-    },
-    body:JSON.stringify(payload),
-    signal
-  });
+    headers:{'Content-Type':'application/json',...headers},
+    body:JSON.stringify(payload)
+  },signal,35000);
+
   const raw=await r.text();
-  let data;
-  try{data=JSON.parse(raw)}catch(e){throw new Error('Supabase returned an unreadable response: '+raw.slice(0,300))}
+  let data=null;
+  try{data=JSON.parse(raw)}catch(e){}
+
   if(!r.ok){
-    const detail=data?.error?.message||data?.message||data?.error||raw;
+    const detail=data?.error?.message||data?.message||data?.error||raw||('HTTP '+r.status);
     const err=new Error(r.status+': '+detail);
     err.status=r.status;
     err.detail=String(detail);
     throw err;
   }
-  if(data?.error)throw new Error(data.error.message||JSON.stringify(data.error));
-
-  const answer=
-    data?.choices?.[0]?.message?.content ??
-    data?.reply ??
-    data?.response ??
-    data?.text ??
-    data?.content ??
-    (typeof data?.message==='string'?data.message:'');
-
-  if(typeof answer!=='string'||!answer.trim()){
-    throw new Error('The model returned no text. Check the Edge Function response.');
+  if(data?.error){
+    const err=new Error(data.error.message||JSON.stringify(data.error));
+    err.detail=err.message;
+    throw err;
   }
-  if(data?.model&&!chosenModel){
-    $('mn').textContent=data.model;
+
+  const text=extractText(data,raw);
+  if(!text)throw new Error('Empty response from server.');
+  return {text,model:data?.model||''};
+}
+
+async function askWithAllFallbacks(messages,signal){
+  const g=cfg();
+  const userModel=(g[g.mode]||'').trim();
+  const lastUserMsg=[...messages].reverse().find(m=>m.role==='user')?.content||'';
+  const primaryHeaders={'apikey':PRIMARY_KEY,'Authorization':'Bearer '+PRIMARY_KEY};
+
+  const attempts=[];
+
+  // 1. Primary endpoint with configured model (if any)
+  if(userModel){
+    attempts.push(async()=>{
+      const res=await postChat(PRIMARY_ENDPOINT,primaryHeaders,{model:userModel,messages,temperature:g.temp,mode:g.mode},signal);
+      return {...res,tag:userModel};
+    });
   }
-  return answer;
+
+  // 2. Primary endpoint letting backend choose default model
+  attempts.push(async()=>{
+    const res=await postChat(PRIMARY_ENDPOINT,primaryHeaders,{messages,temperature:g.temp,mode:g.mode},signal);
+    if(userModel){g[g.mode]='';save();}
+    return {...res,tag:res.model||'auto'};
+  });
+
+  // 3. Primary endpoint with simple prompt payload (in case Edge Function expects {prompt})
+  attempts.push(async()=>{
+    const res=await postChat(PRIMARY_ENDPOINT,primaryHeaders,{prompt:lastUserMsg,system:g.sys,temperature:g.temp,mode:g.mode},signal);
+    if(userModel){g[g.mode]='';save();}
+    return {...res,tag:res.model||'auto'};
+  });
+
+  // 4. Public OpenAI-compatible fallback endpoint (works even if Supabase function is offline or blocked)
+  attempts.push(async()=>{
+    const fbModel=g.mode==='think'?'openai-reasoning':'openai';
+    const res=await postChat(FALLBACK_ENDPOINT,{},{model:fbModel,messages,temperature:g.temp},signal);
+    return {...res,tag:res.model||fbModel};
+  });
+
+  let lastErr=null;
+  for(const attempt of attempts){
+    if(signal?.aborted)throw new DOMException('Aborted','AbortError');
+    try{
+      return await attempt();
+    }catch(e){
+      if(e.name==='AbortError'&&signal?.aborted)throw e;
+      lastErr=e;
+    }
+  }
+  throw lastErr||new Error('All AI endpoints failed to respond.');
 }
 
 async function run(){
@@ -592,29 +676,18 @@ async function run(){
   $('msgs').scrollTop=$('msgs').scrollHeight;
   ctrl=new AbortController();
 
-  const hist=c.msgs.slice(0,-1).filter(x=>!x.error).map(x=>({role:x.role,content:x.content}));
+  const hist=c.msgs.slice(0,-1).filter(x=>!x.error&&!x.img).map(x=>({role:x.role,content:x.content}));
   const messages=[{role:'system',content:g.sys},...hist];
 
   try{
-    let answer;
-    try{
-      answer=await queryBackend(messages,undefined,ctrl.signal);
-    }catch(firstErr){
-      const currentModel=(g[g.mode]||'').trim();
-      if(currentModel&&(firstErr.status===404||/model/i.test(firstErr.detail||''))){
-        answer=await queryBackend(messages,'',ctrl.signal);
-        g[g.mode]='';
-        save();
-      }else{
-        throw firstErr;
-      }
-    }
+    const res=await askWithAllFallbacks(messages,ctrl.signal);
+    if(res.tag)$('mn').textContent=res.tag;
     av.classList.remove('think');
-    await reveal(m,bd,answer);
+    await reveal(m,bd,res.text);
   }catch(e){
     av.classList.remove('think');
     if(e.name==='AbortError'){m.content=m.content||'(stopped)'}
-    else{m.error=true;m.content='Error: '+(e.message||'Unknown network error')}
+    else{m.error=true;m.content='Error: '+(e.message||'Network error. Please try again.')}
   }
   busy=false;
   ctrl=null;
@@ -703,7 +776,7 @@ $('exp').onclick=()=>{
 let rec=null;
 $('vc').onclick=()=>{
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR)return alert('Voice dictation is not supported here. Use a current version of Chrome or Edge.');
+  if(!SR)return alert('Voice dictation is not supported in this browser. Use Chrome or Edge.');
   if(rec){rec.stop();return}
   try{
     rec=new SR();
@@ -722,17 +795,30 @@ $('vc').onclick=()=>{
   }catch(e){rec=null;alert('Could not start the microphone: '+e.message)}
 };
 
+const openDg=()=>{
+  const d=$('dg');
+  if(typeof d.showModal==='function'){
+    if(!d.open)d.showModal();
+  }else{
+    d.setAttribute('open','');
+  }
+};
+
 const closeDg=()=>{
   const d=$('dg');
   d.classList.add('closing');
-  setTimeout(()=>{d.close();d.classList.remove('closing')},180);
+  setTimeout(()=>{
+    if(typeof d.close==='function'&&d.open)d.close();
+    else d.removeAttribute('open');
+    d.classList.remove('closing');
+  },180);
 };
 
 $('st').onclick=()=>{
   const g=cfg();
   $('m1').value=g.fast;
   $('m2').value=g.think;
-  $('dg').showModal();
+  openDg();
 };
 $('rst').onclick=()=>{
   $('m1').value='';
@@ -909,7 +995,7 @@ function vend(){
 }
 
 $('lv').onclick=()=>{
-  if(!SRc)return alert('Live voice requires speech recognition. Open JOMO in a current Chrome or Edge browser and allow microphone access.');
+  if(!SRc)return alert('Live voice requires speech recognition. Open JOMO in Chrome or Edge and allow microphone access.');
   vm=true;
   vmute=false;
   vsp=false;
@@ -974,7 +1060,7 @@ $('w').addEventListener('click',e=>{
   const b=e.target.closest('.cc');
   if(!b)return;
   const code=b.closest('.cb')?.querySelector('code')?.textContent||'';
-  if(navigator.clipboard?.writeText)navigator.clipboard.writeText(code).catch(()=>{});
+  copyText(code);
   b.textContent='Copied ✓';
   setTimeout(()=>b.textContent='Copy',1400);
 });
