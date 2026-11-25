@@ -281,7 +281,9 @@ const DEF={
   sys:'You are JOMO, a precise, concise and helpful AI assistant. Answer in the language of the user.',
   temp:0.7,
   mode:'fast',
-  sessionCollapsed:false
+  sessionCollapsed:false,
+  theme:'dark',
+  vl:'ar-SA'
 };
 
 let S;
@@ -540,7 +542,8 @@ async function queryBackend(messages,modelOverride,signal){
     method:'POST',
     headers:{
       'Content-Type':'application/json',
-      'apikey':API_KEY
+      'apikey':API_KEY,
+      'Authorization':'Bearer '+API_KEY
     },
     body:JSON.stringify(payload),
     signal
@@ -556,8 +559,18 @@ async function queryBackend(messages,modelOverride,signal){
     throw err;
   }
   if(data?.error)throw new Error(data.error.message||JSON.stringify(data.error));
-  const answer=data?.choices?.[0]?.message?.content;
-  if(typeof answer!=='string'||!answer.trim())throw new Error('The model returned no text. Check the Edge Function response.');
+
+  const answer=
+    data?.choices?.[0]?.message?.content ??
+    data?.reply ??
+    data?.response ??
+    data?.text ??
+    data?.content ??
+    (typeof data?.message==='string'?data.message:'');
+
+  if(typeof answer!=='string'||!answer.trim()){
+    throw new Error('The model returned no text. Check the Edge Function response.');
+  }
   if(data?.model&&!chosenModel){
     $('mn').textContent=data.model;
   }
@@ -724,7 +737,10 @@ $('st').onclick=()=>{
 $('rst').onclick=()=>{
   $('m1').value='';
   $('m2').value='';
+  cfg().fast='';
+  cfg().think='';
   cfg().temp=DEF.temp;
+  cfg().sys=DEF.sys;
   save();
   draw();
 };
