@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -157,27 +157,6 @@ body.drag::after{content:"Drop files to attach";position:fixed;inset:12px;z-inde
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
 </head>
-<body>
-<svg width="0" height="0" style="position:absolute"><defs>
-<symbol id="logo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="9" cy="12" r="5.5"/><circle cx="15" cy="12" r="5.5"/></g><circle cx="12" cy="12" r="1.6" fill="currentColor"/></symbol>
-<symbol id="plus" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></symbol>
-<symbol id="gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1-2.1"/></symbol>
-<symbol id="send" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
-<symbol id="stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="3"/></symbol>
-<symbol id="copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="3"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
-<symbol id="check" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></symbol>
-<symbol id="regen" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-14 5.3M4 12a8 8 0 0 1 14-5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></symbol>
-<symbol id="up" viewBox="0 0 24 24"><path d="M7 11v9H4v-9zM7 11l4-8c2 0 3 1 3 3v3h5a2 2 0 0 1 2 2l-1 6a2 2 0 0 1-2 2H7"/></symbol>
-<symbol id="down" viewBox="0 0 24 24"><path d="M7 13V4H4v9zM7 13l4 8c2 0 3-1 3-3v-3h5a2 2 0 0 0 2-2l-1-6a2 2 0 0 0-2-2H7"/></symbol>
-<symbol id="clip" viewBox="0 0 24 24"><path d="m20 11-8.5 8.5a5 5 0 0 1-7-7L13 4a3.5 3.5 0 0 1 5 5l-8.500 8.500a2 2 0 0 1-3-3L14 7"/></symbol>
-<symbol id="mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
-<symbol id="bin" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></symbol>
-<symbol id="panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></symbol>
-<symbol id="user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
-<symbol id="dl" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></symbol>
-<symbol id="img" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m4 18 5-5 4 4 3-3 4 4"/></symbol>
-<symbol id="wave" viewBox="0 0 24 24"><path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4"/></symbol>
-<symbol id="spk" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zM17 9a4 4 0 0 1 0 6M19.5 6.5a8 8 0 0 1 0 11"/></symbol>
 <symbol id="edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/></symbol>
 <symbol id="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></symbol>
 <symbol id="x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
@@ -230,11 +209,7 @@ body.drag::after{content:"Drop files to attach";position:fixed;inset:12px;z-inde
 
 <div id="vm"><select id="vl"><option value="ar-SA">العربية</option><option value="fr-FR">Français</option><option value="en-US">English</option></select><div id="vo" data-s="idle"></div><div id="vt"></div><div class="vb"><button id="vmu" title="Mute"><svg class="i"><use href="#mic"/></svg></button><button class="vx" id="vx" title="End"><svg class="i"><use href="#x"/></svg></button></div></div>
 <dialog id="dg">
-  <h3 style="font-weight:500">Settings: API and Connections</h3><p style="color:var(--mut);margin:8px 0 12px">JOMO is connected to GPT-6 Luna through its Supabase server function. The provider, Base URL and API Key fields below do not control this connection.</p>
-  <label>Provider</label>
-  <select class="field" id="pv"><option value="openai">OpenAI-compatible (OpenAI, OpenRouter, Groq, DeepSeek, Ollama...)</option><option value="anthropic">Anthropic (Claude)</option></select>
-  <label>Base URL</label><input class="field" id="bu" dir="ltr">
-  <label>API Key</label><input class="field" id="ak" type="password" dir="ltr" placeholder="Not used: connection is handled securely by Supabase">
+  <h3 style="font-weight:500">Model Settings</h3><p style="color:var(--mut);margin:8px 0 12px">The chat is routed through the configured Supabase Edge Function. Model, system instructions and temperature are sent with each request. Provider credentials stay on the server; never place private API keys in this page.</p>
   <label>Fast model</label><input class="field" id="m1" dir="ltr">
   <label>Thinking model</label><input class="field" id="m2" dir="ltr">
   <div class="row"><button id="cl">Cancel</button><button class="pri" id="sv">Save</button></div>
@@ -288,7 +263,7 @@ function msgEl(m,i,last,idx){
   <button data-a="up" style="${m.fb==='up'?'color:var(--acc)':''}">${ic('up')}</button><button data-a="down" style="${m.fb==='down'?'color:var(--acc)':''}">${ic('down')}</button></div></div>`;
   d.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{
     const a=b.dataset.a;
-    if(a==='copy'){navigator.clipboard.writeText(m.content);b.innerHTML=ic('check')+'<span>Copied</span>';b.style.color='var(--acc)';setTimeout(()=>{b.innerHTML=ic('copy')+'<span>Copy</span>';b.style.color=''},1400)}
+    if(a==='copy'){(navigator.clipboard?.writeText? navigator.clipboard.writeText(m.content):Promise.reject()).catch(()=>{const ta=document.createElement('textarea');ta.value=m.content;document.body.append(ta);ta.select();document.execCommand('copy');ta.remove()});b.innerHTML=ic('check')+'<span>Copied</span>';b.style.color='var(--acc)';setTimeout(()=>{b.innerHTML=ic('copy')+'<span>Copy</span>';b.style.color=''},1400)}
     if(a==='regen'){const l=cur().msgs.pop();save();draw();l.img?genImg(l.prompt):run()}if(a==='spk'){speechSynthesis.speaking?speechSynthesis.cancel():speak(m.content)}
     if(a==='up'||a==='down'){m.fb=m.fb===a?'':a;save();draw()}
   });
@@ -342,7 +317,7 @@ async function run(){
         'Content-Type':'application/json',
         'apikey':"sb_publishable_FGJPNZUejNt9gC2h2si6-Q_NG06feiy"
       },
-      body:JSON.stringify({model:'gpt-6-luna',messages}),
+      body:JSON.stringify({model:g[g.mode],messages,temperature:g.temp,mode:g.mode}),
       signal:ctrl.signal
     });
     const raw=await r.text();
@@ -360,12 +335,18 @@ async function run(){
     await reveal(m,bd,answer);
   }catch(e){
     if(e.name==='AbortError'){m.content=m.content||'(stopped)'}
-    else{m.error=true;m.content='Error: '+e.message}
+    else{m.error=true;m.content='Error: '+(e.message||'Unknown network error')}
+  }
+    }catch(e){
+    if(e.name==='AbortError'){m.content=m.content||'(stopped)'}
+    else{m.error=true;m.content='Error: '+(e.message||'Unknown network error')}
   }
   busy=false;ctrl=null;save();draw();
 }
+
 function send(){
-  if(busy){ctrl?.abort();return}
+  if(busy){ctrl?.abort();return Promise.resolve()}
+  if(!cur())newConv();
   const c=cur();let t=$('in').value.trim();
   if(!t&&!files.length)return;
   files.forEach(f=>t+=`\n\n[File: ${f.name}]\n${f.text}`);
@@ -386,73 +367,299 @@ $('mode').onchange=e=>{cfg().mode=e.target.value;save();draw()};
 $('sp').onchange=e=>{cfg().sys=e.target.value;save()};
 $('tp').oninput=e=>{cfg().temp=+e.target.value;$('tv').textContent=cfg().temp;save()};
 $('at').onclick=()=>$('fi').click();
+
 $('fi').onchange=async e=>{
   for(const f of e.target.files)files.push({name:f.name,text:(await f.text()).slice(0,60000)});
   e.target.value='';$('fl').textContent=files.map(f=>f.name).join(', ');$('fl').style.display=files.length?'':'none';
 };
+
 $('exp').onclick=()=>{
-  const c=cur();const t=c.msgs.map(m=>(m.role==='user'?'## You\n':'## JOMO\n')+m.content).join('\n\n');
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/markdown'}));a.download='jomo-chat.md';a.click();
+  const c=cur();if(!c)return;
+  const t=c.msgs.map(m=>(m.role==='user'?'## You\n':'## JOMO\n')+m.content).join('\n\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([t],{type:'text/markdown'}));
+  a.download='jomo-chat.md';a.click();
 };
+
 let rec=null;
 $('vc').onclick=()=>{
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR)return alert('Voice input is not supported in this browser.');
+  if(!SR)return alert('Voice dictation is not supported here. Use a current version of Chrome or Edge.');
   if(rec){rec.stop();return}
-  rec=new SR();rec.lang=navigator.language||'ar';rec.interimResults=false;
-  rec.onresult=e=>{$('in').value+=(($('in').value?' ':'')+e.results[0][0].transcript)};
-  rec.onend=()=>{rec=null;$('vc').style.color=''};rec.start();$('vc').style.color='var(--acc)';
+  try{
+    rec=new SR();rec.lang=navigator.language||'ar-DZ';rec.interimResults=true;rec.continuous=false;
+    rec.onresult=e=>{
+      const text=[...e.results].map(r=>r[0].transcript).join('');
+      $('in').value=( $('in').value ? $('in').value+' ' : '')+text;
+      $('in').dispatchEvent(new Event('input'));
+    };
+    rec.onerror=e=>{if(e.error!=='no-speech'&&e.error!=='aborted')alert('Dictation error: '+e.error)};
+    rec.onend=()=>{rec=null;$('vc').style.color=''};
+    rec.start();$('vc').style.color='var(--acc)';
+  }catch(e){rec=null;alert('Could not start the microphone: '+e.message)}
 };
-const P={openai:'https://api.openai.com/v1',anthropic:'https://api.anthropic.com/v1'};
-$('pv').onchange=e=>{$('bu').value=P[e.target.value];$('m1').value=e.target.value==='anthropic'?'claude-haiku-4-5':'gpt-4o-mini';$('m2').value=e.target.value==='anthropic'?'claude-sonnet-4-5':'gpt-4o'};
-const closeDg=()=>{const d=$('dg');d.classList.add('closing');setTimeout(()=>{d.close();d.classList.remove('closing')},180)};
-$('st').onclick=()=>{const g=cfg();$('pv').value=g.provider;$('bu').value=g.base;$('ak').value=g.key;$('m1').value=g.fast;$('m2').value=g.think;$('dg').showModal()};
+
+const closeDg=()=>{
+  const d=$('dg');d.classList.add('closing');
+  setTimeout(()=>{d.close();d.classList.remove('closing')},180);
+};
+
+$('st').onclick=()=>{
+  const g=cfg();$('m1').value=g.fast;$('m2').value=g.think;$('dg').showModal();
+};
 $('cl').onclick=closeDg;
 $('dg').addEventListener('cancel',e=>{e.preventDefault();closeDg()});
 $('dg').addEventListener('click',e=>{if(e.target===$('dg'))closeDg()});
-$('sv').onclick=()=>{Object.assign(cfg(),{provider:$('pv').value,base:$('bu').value.trim(),key:$('ak').value.trim(),fast:$('m1').value.trim(),think:$('m2').value.trim()});save();closeDg();draw()};
+$('sv').onclick=()=>{
+  Object.assign(cfg(),{
+    fast:$('m1').value.trim()||DEF.fast,
+    think:$('m2').value.trim()||DEF.think
+  });
+  save();closeDg();draw();
+};
 
-
-let imgMode=false,vm=false,vrec=null,vmute=false,vsp=false;
+let imgMode=false,vm=false,vrec=null,vmute=false,vsp=false,voiceRestart=null,voiceFinal='';
 const SRc=window.SpeechRecognition||window.webkitSpeechRecognition;
-const imgHTML=m=>`<div class="gen"><div class="sk"></div><img src="${m.img}" alt="${esc(m.prompt)}" onload="this.parentNode.classList.add('ok')" onerror="this.parentNode.classList.add('bad')"><div class="bd">Couldn't load the image. Try Regenerate.</div></div><div style="color:var(--mut);font-size:12px;margin-top:6px" dir="auto">${esc(m.prompt)} · <a href="${m.img}" target="_blank" rel="noopener" style="color:var(--acc)">Open full size</a></div>`;
-function genImg(p){cur().msgs.push({role:'assistant',content:'[Image: '+p+']',img:'https://image.pollinations.ai/prompt/'+encodeURIComponent(p)+'?width=1024&height=1024&nologo=true&seed='+Math.floor(Math.random()*1e6),prompt:p});save();draw()}
-const lang=t=>/[\u0600-\u06FF]/.test(t)?'ar-SA':/[àâçéèêëîïôûùüÿœ]/i.test(t)?'fr-FR':'en-US';
-const plain=t=>t.replace(/```[\s\S]*?```/g,' code block ').replace(/\(https?:[^)]*\)/g,'').replace(/[*_#`>\[\]]/g,'');
-function speak(t,done){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(plain(t));u.lang=vm?$('vl').value:lang(t);u.onend=u.onerror=()=>done&&done();speechSynthesis.speak(u)}
-const vs=(s,t)=>{$('vo').dataset.s=s;$('vt').textContent=t};
+
+const imgHTML=m=>`
+<div class="gen">
+  <div class="sk"></div>
+  <img src="${m.img}" alt="${esc(m.prompt)}"
+       onload="this.parentNode.classList.add('ok')"
+       onerror="this.parentNode.classList.add('bad')">
+  <div class="bd">Couldn't load the image. Try Regenerate.</div>
+</div>
+<div style="color:var(--mut);font-size:12px;margin-top:6px" dir="auto">
+  ${esc(m.prompt)} ·
+  <a href="${m.img}" target="_blank" rel="noopener" style="color:var(--acc)">Open full size</a>
+</div>`;
+
+function genImg(p){
+  cur().msgs.push({
+    role:'assistant',
+    content:'[Image: '+p+']',
+    img:'https://image.pollinations.ai/prompt/'+encodeURIComponent(p)+'?width=1024&height=1024&nologo=true&seed='+Math.floor(Math.random()*1e6),
+    prompt:p
+  });
+  save();draw();
+}
+
+const lang=t=>/[؀-ۿ]/.test(t)?'ar-SA':/[àâçéèêëîïôûùüÿœ]/i.test(t)?'fr-FR':'en-US';
+
+const plain=t=>t
+  .replace(/```[\s\S]*?```/g,' code block ')
+  .replace(/\(https?:[^)]*\)/g,'')
+  .replace(/[*_#`>\[\]]/g,'');
+
+function speak(t,done){
+  if(!('speechSynthesis' in window)){done&&done();return}
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(plain(t));
+  u.lang=vm?$('vl').value:lang(t);
+  u.onend=()=>done&&done();
+  u.onerror=()=>done&&done();
+  speechSynthesis.speak(u);
+}
+
+const vs=(s,t)=>{
+  $('vo').dataset.s=s;
+  $('vt').textContent=t;
+};
+
+function stopRecognition(){
+  clearTimeout(voiceRestart);voiceRestart=null;
+  try{vrec&&vrec.abort()}catch(e){}
+  vrec=null;
+}
+
 function vlisten(){
-  if(!vm)return;if(vmute)return vs('idle','Muted');
-  vrec=new SRc();vrec.lang=$('vl').value;vrec.interimResults=true;let fin='';
-  vrec.onresult=e=>{fin=[...e.results].map(r=>r[0].transcript).join('');$('vt').textContent=fin};
-  vrec.onerror=e=>{if(e.error==='not-allowed'){alert('Microphone permission denied');vend()}};
-  vrec.onend=()=>{if(!vm||vsp)return;fin.trim()?vsay(fin.trim()):setTimeout(vlisten,250)};
-  try{vrec.start();vs('listen','Listening...')}catch(e){}
+  if(!vm||vmute||vsp)return;
+  if(!SRc){vs('idle','Speech recognition is not supported in this browser.');return}
+  stopRecognition();
+
+  try{
+    const r=new SRc();vrec=r;
+    r.lang=$('vl').value;
+    r.interimResults=true;
+    r.continuous=false;
+    let interim='';
+
+    r.onresult=e=>{
+      interim='';
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        const phrase=e.results[i][0].transcript;
+        if(e.results[i].isFinal)voiceFinal+=phrase+' ';
+        else interim+=phrase;
+      }
+      $('vt').textContent=(voiceFinal+interim).trim()||'Listening...';
+    };
+
+    r.onerror=e=>{
+      if(!vm)return;
+      if(e.error==='not-allowed'||e.error==='service-not-allowed'){
+        vs('idle','Microphone permission denied. Allow microphone access and try again.');
+        vm=false;return;
+      }
+      if(e.error!=='no-speech'&&e.error!=='aborted')
+        vs('idle','Voice recognition error: '+e.error);
+    };
+
+    r.onend=()=>{
+      if(vrec===r)vrec=null;
+      if(!vm||vsp||vmute)return;
+      const phrase=voiceFinal.trim();voiceFinal='';
+      if(phrase){vsay(phrase);return}
+      voiceRestart=setTimeout(vlisten,350);
+    };
+
+    r.start();vs('listen','Listening...');
+  }catch(e){
+    vrec=null;vs('idle','Could not start microphone: '+e.message);
+  }
 }
+
 async function vsay(t){
-  vs('think',t);vsp=true;$('in').value=t;await send();
-  const l=cur().msgs.at(-1);if(!vm)return;
-  if(l&&l.role==='assistant'&&!l.error&&!l.img){vs('speak',l.content.slice(0,140));speak(l.content,()=>{vsp=false;vlisten()})}else{vsp=false;vlisten()}
+  if(!vm||!t.trim())return;
+  vsp=true;vs('think','Thinking...');
+  $('in').value=t;
+
+  try{
+    await send();
+    if(!vm)return;
+    const l=cur()?.msgs?.at(-1);
+
+    if(l&&l.role==='assistant'&&!l.error&&!l.img){
+      vs('speak',l.content.slice(0,140));
+      speak(l.content,()=>{
+        vsp=false;
+        if(vm&&!vmute)vlisten();
+      });
+    }else{
+      vsp=false;
+      if(vm&&!vmute)vlisten();
+    }
+  }catch(e){
+    vsp=false;
+    vs('idle','Could not complete the request: '+e.message);
+    if(vm&&!vmute)vlisten();
+  }
 }
-function vend(){vm=false;vsp=false;speechSynthesis.cancel();try{vrec.abort()}catch(e){}$('vm').classList.remove('on')}
-$('lv').onclick=()=>{if(!SRc)return alert('Live voice needs a browser with speech recognition (Chrome, Edge, Safari).');vm=true;vmute=false;vsp=false;$('vmu').classList.remove('off');$('vl').value=S.cfg.vl||'ar-SA';$('vm').classList.add('on');vlisten()};
+
+function vend(){
+  vm=false;vsp=false;voiceFinal='';
+  stopRecognition();
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  $('vm').classList.remove('on');
+  vs('idle','');
+}
+
+$('lv').onclick=()=>{
+  if(!SRc)return alert('Live voice requires speech recognition. Open JOMO in a current Chrome or Edge browser and allow microphone access.');
+  vm=true;vmute=false;vsp=false;voiceFinal='';
+  $('vmu').classList.remove('off');
+  $('vl').value=S.cfg.vl||'ar-SA';
+  $('vm').classList.add('on');
+  vlisten();
+};
+
 $('vx').onclick=vend;
-$('vmu').onclick=()=>{vmute=!vmute;$('vmu').classList.toggle('off',vmute);if(vmute){try{vrec.abort()}catch(e){}}else vlisten()};
-$('vo').onclick=()=>{if($('vo').dataset.s==='speak')speechSynthesis.cancel()};
-$('vl').onchange=e=>{S.cfg.vl=e.target.value;save();try{vrec.abort()}catch(e){}};
-$('im').onclick=()=>{imgMode=!imgMode;$('im').classList.toggle('on',imgMode);$('in').placeholder=imgMode?'Describe the image you want...':'Ask JOMO anything...';$('in').focus()};
-const th=x=>{document.documentElement.dataset.theme=x;S.cfg.theme=x};th(S.cfg.theme||'dark');
-$('th').onclick=()=>{th(S.cfg.theme==='light'?'dark':'light');save()};
-$('w').addEventListener('click',e=>{const b=e.target.closest('.cc');if(!b)return;navigator.clipboard.writeText(b.closest('.cb').querySelector('code').textContent);b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy',1400)});
-const ms=$('msgs');ms.addEventListener('scroll',()=>$('sbt').classList.toggle('show',ms.scrollHeight-ms.scrollTop-ms.clientHeight>200));
+
+$('vmu').onclick=()=>{
+  vmute=!vmute;
+  $('vmu').classList.toggle('off',vmute);
+
+  if(vmute){
+    stopRecognition();
+    if('speechSynthesis' in window)speechSynthesis.cancel();
+    vs('idle','Muted');
+  }else{
+    voiceFinal='';
+    vlisten();
+  }
+};
+
+$('vo').onclick=()=>{
+  if($('vo').dataset.s==='speak'&&'speechSynthesis' in window){
+    speechSynthesis.cancel();vsp=false;
+    if(vm&&!vmute)vlisten();
+  }
+};
+
+$('vl').onchange=e=>{
+  S.cfg.vl=e.target.value;save();voiceFinal='';
+  if(vm&&!vmute){stopRecognition();vlisten()}
+};
+
+$('im').onclick=()=>{
+  imgMode=!imgMode;
+  $('im').classList.toggle('on',imgMode);
+  $('in').placeholder=imgMode?'Describe the image you want...':'Ask JOMO anything...';
+  $('in').focus();
+};
+
+const th=x=>{
+  document.documentElement.dataset.theme=x;
+  S.cfg.theme=x;
+};
+
+th(S.cfg.theme||'dark');
+
+$('w').addEventListener('click',e=>{
+  const b=e.target.closest('.cc');
+  if(!b)return;
+  navigator.clipboard.writeText(b.closest('.cb').querySelector('code').textContent);
+  b.textContent='Copied ✓';
+  setTimeout(()=>b.textContent='Copy',1400);
+});
+
+const ms=$('msgs');
+
+ms.addEventListener('scroll',()=>
+  $('sbt').classList.toggle('show',ms.scrollHeight-ms.scrollTop-ms.clientHeight>200)
+);
+
 $('sbt').onclick=()=>ms.scrollTo({top:ms.scrollHeight});
-const addF=async L=>{for(const f of L)files.push({name:f.name,text:(await f.text()).slice(0,60000)});$('fl').textContent=files.map(f=>f.name).join(', ');$('fl').style.display=files.length?'':'none'};
-$('fi').onchange=async e=>{await addF(e.target.files);e.target.value=''};
-['dragover','drop'].forEach(n=>document.addEventListener(n,e=>{e.preventDefault();if(n==='drop'){addF(e.dataTransfer.files);document.body.classList.remove('drag')}}));
+
+const addF=async L=>{
+  for(const f of L)
+    files.push({name:f.name,text:(await f.text()).slice(0,60000)});
+  $('fl').textContent=files.map(f=>f.name).join(', ');
+  $('fl').style.display=files.length?'':'none';
+};
+
+$('fi').onchange=async e=>{
+  await addF(e.target.files);
+  e.target.value='';
+};
+
+['dragover','drop'].forEach(n=>
+  document.addEventListener(n,e=>{
+    e.preventDefault();
+    if(n==='drop'){
+      addF(e.dataTransfer.files);
+      document.body.classList.remove('drag');
+    }
+  })
+);
+
 document.addEventListener('dragenter',()=>document.body.classList.add('drag'));
-document.addEventListener('dragleave',e=>{if(!e.relatedTarget)document.body.classList.remove('drag')});
-document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();$('q').focus()}if(e.key==='Escape'&&vm)vend()});
-if(!S.convs.length)newConv();else{if(!cur())S.cur=S.convs[0].id;draw()}
+
+document.addEventListener('dragleave',e=>{
+  if(!e.relatedTarget)document.body.classList.remove('drag');
+});
+
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){
+    e.preventDefault();$('q').focus();
+  }
+  if(e.key==='Escape'&&vm)vend();
+});
+
+if(!S.convs.length)newConv();
+else{
+  if(!cur())S.cur=S.convs[0].id;
+  draw();
+}
 </script>
 </body>
 </html>
